@@ -35,12 +35,12 @@ The system is simulated by a Markov chain of different spin configurations:
 
 The ensemble mean of an obserable A is replaced by the average over a time period:
 
-    <A> = ∑_{t = t0}^{t0 + T} A(S(t)) / T
+	<A> = ∑_{t = t0}^{t0 + T} A(S(t)) / T
 
 Successive elements of this Markov chain differ only by a spin flip:
 
 	S  = (s_1, ... , s_i , ... , s_N),	 
-    S' = (s_1, ... , -s_i, ... , s_N)
+	S' = (s_1, ... , -s_i, ... , s_N)
 	
 The probability for a transition S -> S' in the Markov chain is given by 
  
@@ -79,17 +79,17 @@ function Ising(nx, ny, mcSteps, averagingFrames, randomize, temp, hField, step, 
 	this.imageFile       = imageFile;       // filename for simulation images
 	this.dataFile        = dataFile;        // filename for simulation data
 	
-	console.log(	'----- SIMULATION PARAMETERS -----' 					+ '\n' +
-					'  Lattice size:            ' + this.nx + 'x' + this.ny + '\n' +
-					'  MC steps per interation: ' + this.mcSteps 			+ '\n' +
-					'  Interations for average: ' + this.averagingFrames 	+ '\n' +
-					'  Initial temperature:     ' + this.temp 				+ '\n' +
-					'  Initial magnetic field:  ' + this.hField             + '\n' +
-					'  Random initialization:   ' + randomize               + '\n' +
-					'  Loop type:               ' + this.loopMode           + '\n' +
-					'  Final value:             ' + this.finalValue         + '\n' +
-					'  Iteration step:          ' + this.step               + '\n' +
-					'---------------------------------'									);
+	console.log( '----- SIMULATION PARAMETERS -----'                     + '\n' +
+	             '  Lattice size:            ' + this.nx + 'x' + this.ny + '\n' +
+	             '  MC steps per interation: ' + this.mcSteps            + '\n' +
+	             '  Interations for average: ' + this.averagingFrames    + '\n' +
+	             '  Initial temperature:     ' + this.temp               + '\n' +
+	             '  Initial magnetic field:  ' + this.hField             + '\n' +
+	             '  Random initialization:   ' + randomize               + '\n' +
+	             '  Loop type:               ' + this.loopMode           + '\n' +
+	             '  Final value:             ' + this.finalValue         + '\n' +
+	             '  Iteration step:          ' + this.step               + '\n' +
+		     '---------------------------------'                               );
 	
 	this.iter          = 1;                    // iteration variable
 	this.timeStamp     = new Date().getTime(); // starting time
@@ -119,9 +119,9 @@ function Ising(nx, ny, mcSteps, averagingFrames, randomize, temp, hField, step, 
 		this.spinBuffer.push([]);
 		for(var j = 0; j < this.ny; j++){
 			if(randomize){
-				this.spin[i].push(2*Math.floor(2*Math.random()) - 1);	// random value (-1 or +1)
+				this.spin[i].push(2*Math.floor(2*Math.random()) - 1); // random value (-1 or +1)
 			} else {
-				this.spin[i].push(1);									// high spin state
+				this.spin[i].push(1);                                 // high spin state
 			}
 			this.spinBuffer[i].push(0);
 		}
@@ -130,10 +130,10 @@ function Ising(nx, ny, mcSteps, averagingFrames, randomize, temp, hField, step, 
 		this.exchangeField.push([]);
 		for(var j = 0; j < this.ny; j++){
 			// spin sum over all next neighbors gives exchange Field in units of J:
-			this.exchangeField[i].push(	this.spin[(i + 1)%this.nx][j] + 
-										this.spin[(i - 1 + this.nx)%this.nx][j] + 
-										this.spin[i][(j + 1)%this.ny] + 
-										this.spin[i][(j - 1 + this.ny)%this.ny]		);			
+			this.exchangeField[i].push( this.spin[(i + 1)%this.nx][j] + 
+			                            this.spin[(i - 1 + this.nx)%this.nx][j] + 
+			                            this.spin[i][(j + 1)%this.ny] + 
+			                            this.spin[i][(j - 1 + this.ny)%this.ny]    );
 		}
 	}
 	
@@ -171,10 +171,10 @@ function Ising(nx, ny, mcSteps, averagingFrames, randomize, temp, hField, step, 
 			}
 		}
 	}
-		
+  
 	/********************************
-    ** UPDATE PHYSICAL QUANTITIES: **
-    ********************************/
+	** UPDATE PHYSICAL QUANTITIES: **
+	********************************/
 	
 	this.update = function(){
 		console.log('-> Update physical quantities');
@@ -209,17 +209,17 @@ function Ising(nx, ny, mcSteps, averagingFrames, randomize, temp, hField, step, 
 		
 		if(this.iter % this.averagingFrames == 0){	
 			var newRow = this.dataTable.addRow();
-			newRow.setString('temperature'    , this.temp.toExponential(6)   		); 
-			newRow.setString('field'          , this.hField.toExponential(6) 		); 
-			newRow.setString('magnetization'  , this.averageMag.toExponential(6)    ); 
-			newRow.setString('order parameter', this.averageOrder.toExponential(6)  );
+			newRow.setString('temperature'    , this.temp.toExponential(6)         ); 
+			newRow.setString('field'          , this.hField.toExponential(6)       ); 
+			newRow.setString('magnetization'  , this.averageMag.toExponential(6)   ); 
+			newRow.setString('order parameter', this.averageOrder.toExponential(6) );
 			
-			console.log(	'------ UPDATED DATATABLE ------' 		  + '\n' +
-							'  Temperature:     ' + this.temp         + '\n' +
-							'  Magnetic field:  ' + this.hField 	  + '\n' +
-							'  Magnetization:   ' + this.averageMag   + '\n' +
-							'  Order parameter: ' + this.averageOrder + '\n' +
-							'-------------------------------'					);
+			console.log( '------ UPDATED DATATABLE ------'         + '\n' +
+			             '  Temperature:     ' + this.temp         + '\n' +
+			             '  Magnetic field:  ' + this.hField       + '\n' +
+			             '  Magnetization:   ' + this.averageMag   + '\n' +
+			             '  Order parameter: ' + this.averageOrder + '\n' +
+			             '-------------------------------'                  );
 			this.averageMag   = 0;
 			this.averageOrder = 0; 
 		}
@@ -303,11 +303,11 @@ function Ising(nx, ny, mcSteps, averagingFrames, randomize, temp, hField, step, 
 	
 	this.iterate = function(){
 		
-		if(this.iter % this.averagingFrames == 0){	// if averaging is completed
+		if(this.iter % this.averagingFrames == 0){ // if averaging is completed
 			if(this.exitCondition()){
-				this.terminate();					// end simulation ..
+				this.terminate();          // end simulation ..
 			} else {								
-				this.increment();					// ... or change temperature/field
+				this.increment();          // ... or change temperature/field and continue
 			}
 		}
 		this.iter++;
@@ -351,8 +351,8 @@ function Ising(nx, ny, mcSteps, averagingFrames, randomize, temp, hField, step, 
 	
 	this.terminate = function(){
 		console.log( '------ SIMULATION FINISHED ------\n' +
-					 '  Execution time:    ' + (new Date().getTime() - this.timeStamp) + ' ms\n' +
-					 '  Monte carlo steps: ' + this.iter * this.mcSteps 						);
+		             '  Execution time:    ' + (new Date().getTime() - this.timeStamp) + ' ms\n' +
+		             '  Monte carlo steps: ' + this.iter * this.mcSteps 						);
 					 
 		if(this.dataFile != null){
 			saveTable(this.dataTable, this.dataFile + '.csv');
