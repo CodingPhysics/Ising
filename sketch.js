@@ -31,10 +31,10 @@ function setup() {
 	background(0);
 	
 	ferromagnet = new Ising( LATTICE_WIDTH, LATTICE_HEIGHT,                        // size of the lattice
-							 MARKOV_CHAIN_STEPS_PER_FRAME, FRAMES_FOR_AVERAGING,   // iteration steps
-							 RANDOMIZE, TEMPERATURE, MAGNETIC_FIELD,               // lattice initialization
-							 STEP, FINAL_VALUE, LOOP_MODE,                         // loop specifications
-							 IMAGE_FILE, DATA_FILE                              ); // image and data export
+	                         MARKOV_CHAIN_STEPS_PER_FRAME, FRAMES_FOR_AVERAGING,   // iteration steps
+	                         RANDOMIZE, TEMPERATURE, MAGNETIC_FIELD,               // lattice initialization
+	                         STEP, FINAL_VALUE, LOOP_MODE,                         // loop specifications
+	                         IMAGE_FILE, DATA_FILE                              ); // image and data export
 }
 
 // Draw loop:
