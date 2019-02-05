@@ -23,7 +23,7 @@ where k is the Boltzmann constant and T is the absolute temperature.
 
 ## Metropolis Algorithm
 
-The program applies a Monte Carlo simulation of the [Metropolis algorithm](https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm).
+The simulation the applies the [Metropolis algorithm](https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm).
 Thereby, the system is simulated by a Markov chain of different spin configurations as a function of time t:
 
     S(0), S(1), ... , S(t), ...
