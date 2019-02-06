@@ -9,17 +9,18 @@ const FRAME_RATE    = 20;
 // Simulation parameters:
 
 var isingSettings = {
-	width:           100,
-	height:          100,
-	mcStepsPerFrame: 10000,
-	averagingFrames: 20,
-	randomize:       true,
-	temperature:     4,
-	magenticField:   0,
-	loopMode:        'TSWEEP',
-	loopIncrement:   -0.05,
-	imageFile:       null,
-	dataFile:        'simulationData'
+	width:            100,
+	height:           100,
+	mcStepsPerFrame:  10000,
+	averagingFrames:  20,
+	randomizeLattice: true,
+	temperature:      4,
+	magneticField:    0,
+	loopMode:         'TSWEEP',
+	loopIncrement:    -0.05,
+	loopTargetValue:  1,
+	imageFile:        null,
+	dataFile:         'simulationData'
 	}
 var ferromagnet;
 
