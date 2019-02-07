@@ -1,25 +1,103 @@
-/* MONTE CARLO SIMULATION ON AN ISING SPIN SYSTEM ON A TWO-DIMENSIONAL PERIODIC LATTICE */
+/********* MONTE CARLO SIMULATION ON AN ISING SPIN SYSTEM ON A TWO-DIMENSIONAL PERIODIC LATTICE **************/
 
-/*************************************************************************************
+/*************************************************************************************************************
 From: 	Coding Phyisics
 email:	CodingPhysicSimulation@gmail.com
 github:	https://github.com/CodingPhysics
-*************************************************************************************/
+**************************************************************************************************************/
+
+/***************************************** D E S C R I P T I O N *********************************************
+This is a P5.js animation of a simple Ising model for a ferromagnet on a two-dimensional square lattice.
+This program visualizes magnetic domains and can simulate temperature or magnetic field curves. 
+If wanted, the simulation data and indiviual frames are automatically saved for later evaluation or presentation. 
+(In particular, the captured frames can be used to create a video animation.)
+*************************************************************************************************************/
+
+/************************************** P H Y S I C A L   M O D E L ******************************************
+The state of a Ising ferromagnet is described by a dicrete spin vector S 
+
+	S = (s_1, s_2, ..., s_N) ∈ {-1, +1}^N
+
+where each spin s_i can assume only two possible values -1 or +1 (spin-down or spin-up).
+The energy of a certain state is given by the dimensionless Hamilitonian (J = mu = 1):
+
+	H(S) = - ∑_<i,j> s_i s_j - h ∑_i s_i = - ∑_i (h_i + h) s_i
+
+where the first sum is taken over all pairs i,j of adjacent spins. 
+h denotes the external magnetic field and h_i is the so-called exchange field.
+In thermodynamic equilibrium, the systems shows a Boltzmann distribution (k = 1):
+
+	p(S) = const * exp( - H(S) / T) 
+
+where T is the temperature. 
+*************************************************************************************************************/
+
+/********************************** M E T R O P O L I S   A L G O R I T M *********************************** 
+The Ising system is simulated by a Markov chain of spin states S(t) as a function of discrete time t, 
+which fulfills the Boltzmann distributions. The algorithm can summarized by the following:
+
+1. Choose an initial spin configuration S(0)
+2. Choose a random i and calculate the energy change for a single spin-flip s_i → -s_i:
+
+	∆E = - 2 s_i (h_i + h)
+	
+3. Attempt a spin-flip with the transition probability
+	                ┌
+	                │ 1          	∆E ≥ 0
+	p(s_i → -s_i) = ┤
+	                │ exp(∆E / T)	∆E < 0
+	                └
+   For this, generate a random number r ∈ [0,1] and flip the i-th spin, if r < p(s_i → -s_i).
+   Otherwise keep the current state.
+4. Go to 2. and repeat
+
+************************************************************************************************************/
+
+/********************************************** U S A G E ****************************************************
+Ising is called with a settings object as a single argument, that summarizes all parameters of the simulation:
+
+var mySettings = { 
+	width:            <Number>                                // width of the spin lattice 
+	height:           <Number>,                               // height of the spin lattice
+	mcStepsPerFrame:  <Number>,                               // number of iterations in a simulation step
+	averagingFrames:  <Number>,                               // number of simulation steps for averaging 
+	temperature:      <Number>,                               // initial temperature 
+	magneticField:    <Number>,                               // initial magnetic field 
+	randomizeLattice: <Boolean>,                              // initial spin configuration 
+	loopMode:         'TSWEEP'|'TLOOP'|'HSWEEP'|'HLOOP'|null, // specifies temperature/field curve
+	loopTargetValue:  <Number>,                               // target value for temperature/field in the loop
+	loopIncrement:    <Number>,                               // step size of temperature/field in the loop
+	imageFile:        <String>|null,                          // file name for capturing of the animation frames
+	dataFile:         <String>|null                           // file name for the simulation data
+};
+
+var mySimulation = new Ising(mySettings);
+
+Only the parameters imageFile, dataFile and loopMode are optional and should be set to null if not used. 
+In order to excute and animate the simulation, the function simulationStep() must be called in the draw function:
+
+function draw() {
+	mySimulation.simulationStep();
+}
+
+Image and data files are automatically saved to the local download directory.
+***************************************************************************************************************/
+
 
 function Ising(settings){
 	
-	this.width            = settings.width;            // width of the spin lattice
-	this.height           = settings.height;           // height of the spin lattice
-	this.mcStepsPerFrame  = settings.mcStepsPerFrame;  // number of Markov chain steps in a simulation step
-	this.averagingFrames  = settings.averagingFrames;  // number of simulations step for averaging of measured quantites
-	this.temperature      = settings.temperature;      // initial temperature (in units of J/k)
-	this.magneticField    = settings.magneticField;    // initial magnetic field (in units of J/mu)
-	this.randomizeLattice = settings.randomizeLattice; // initial spin configuration (true: random state, false: high-spin state)
-	this.loopMode         = settings.loopMode;         // 'TSWEEP', 'TLOOP', 'HSWEEP', 'HLOOP' for temperature/field curves
-	this.loopTargetValue  = settings.loopTargetValue;  // target value for temperature/field in the loop
-	this.loopIncrement    = settings.loopIncrement;    // step size of temperature/field in the loop
-	this.imageFile        = settings.imageFile;        // file name for capturing of the animation frames
-	this.dataFile         = settings.dataFile;         // file name for the simulation data
+	this.width            = settings.width;            
+	this.height           = settings.height;           
+	this.mcStepsPerFrame  = settings.mcStepsPerFrame; 
+	this.averagingFrames  = settings.averagingFrames;  
+	this.temperature      = settings.temperature;      
+	this.magneticField    = settings.magneticField;    
+	this.randomizeLattice = settings.randomizeLattice; 
+	this.loopMode         = settings.loopMode;         
+	this.loopTargetValue  = settings.loopTargetValue;  
+	this.loopIncrement    = settings.loopIncrement;    
+	this.imageFile        = settings.imageFile;        
+	this.dataFile         = settings.dataFile;         
 	
 	console.log( '----- SIMULATION PARAMETERS -----'                            + '\n' +
 	             '  Lattice size:            ' + this.width + 'x' + this.height + '\n' +
@@ -55,8 +133,9 @@ function Ising(settings){
 	
 	this.initialize = function(){
 		
-		this.spin       = [];
-		this.spinBuffer = [];
+		this.spin          = [];
+		this.spinBuffer    = [];
+		this.exchangeField = [];
 		
 		for(var i = 0; i < this.width; i++){
 			this.spin.push([]);
@@ -69,7 +148,6 @@ function Ising(settings){
 			}
 		}
 		
-		this.exchangeField = [];
 		for(var i = 0; i < this.width; i++){
 			this.exchangeField.push([]);
 			
@@ -85,7 +163,6 @@ function Ising(settings){
 				this.exchangeField[i].push(sumOverNextNeighbors);
 			}
 		}
-		
 	}
 	this.initialize();
 	
@@ -153,8 +230,8 @@ function Ising(settings){
 		weight /= 4;
 		this.orderParameter = 0;
 		
-		for(var i = 0; i < this.nx; i++){
-			for(var j = 0; j < this.ny; j++){
+		for(var i = 0; i < this.width; i++){
+			for(var j = 0; j < this.height; j++){
 				this.orderParameter += this.exchangeField[i][j]*this.spin[i][j]*weight;
 			}
 		}
@@ -164,23 +241,26 @@ function Ising(settings){
 		// update datatable if averaging is completed:
 		
 		if(this.frameCounter % this.averagingFrames == 0){	
-			var newRow = this.dataTable.addRow();
-			newRow.setString('temperature'    , this.temperature.toExponential(6)           ); 
-			newRow.setString('magnetic field' , this.magneticField.toExponential(6)         ); 
-			newRow.setString('magnetization'  , this.averageMagnetization.toExponential(6)  ); 
-			newRow.setString('order parameter', this.averageOrderParameter.toExponential(6) );
-			
-			console.log( '------ UPDATED DATATABLE ------'                  + '\n' +
-			             '  Temperature:     ' + this.temperature           + '\n' +
-			             '  Magnetic field:  ' + this.magneticField         + '\n' +
-			             '  Magnetization:   ' + this.averageMagnetization  + '\n' +
-			             '  Order parameter: ' + this.averageOrderParameter + '\n' +
-			             '-------------------------------'                           );
+			this.updateDataTable();
 			this.averageMagnetization  = 0;
 			this.averageOrderParameter = 0; 
 		}
 	}
-		
+	
+	this.updateDataTable = function(){
+		var newRow = this.dataTable.addRow();
+		newRow.setString('temperature'    , this.temperature.toExponential(6)           ); 
+		newRow.setString('magnetic field' , this.magneticField.toExponential(6)         ); 
+		newRow.setString('magnetization'  , this.averageMagnetization.toExponential(6)  ); 
+		newRow.setString('order parameter', this.averageOrderParameter.toExponential(6) );
+			
+		console.log( '------ UPDATED DATATABLE ------'                  + '\n' +
+		             '  Temperature:     ' + this.temperature           + '\n' +
+		             '  Magnetic field:  ' + this.magneticField         + '\n' +
+		             '  Magnetization:   ' + this.averageMagnetization  + '\n' +
+		             '  Order parameter: ' + this.averageOrderParameter + '\n' +
+		             '-------------------------------'                           );
+	}
 		
 	this.show = function(){
 		console.log('-> Display spin lattice');
@@ -214,7 +294,7 @@ function Ising(settings){
 		
 		// save frame as png image:
 		
-		if(this.imageFile != null){
+		if(this.imageFile !== null){
 			saveCanvas(this.imageFile + this.iter + '.png');
 			console.log('   Frame saved as ' + this.imageFile + this.iter + '.png');
 		}
@@ -308,7 +388,7 @@ function Ising(settings){
 		             '  Execution time:    ' + (new Date().getTime() - this.startingTime) + ' ms\n' +
 		             '  Monte carlo steps: ' + this.frameCounter * this.mcSteps 			);
 					 
-		if(this.dataFile != null){
+		if(this.dataFile !== null){
 			saveTable(this.dataTable, this.dataFile + '.csv');
 			console.log('  Simulation data saved as ' + this.dataFile + '.csv');
 		}
