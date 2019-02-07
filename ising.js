@@ -42,7 +42,7 @@ function Ising(settings){
 	this.dataTable.addColumn('order parameter');
 	
 	this.loopBackward   = false; 
-	this.loopStartValue = (loopMode.charAt(0) == 'T')? this.temperature : this.magneticField; 
+	this.loopStartValue = (this.loopMode.charAt(0) == 'T')? this.temperature : this.magneticField; 
 
 	this.magnetization         = 0;     // magnetization of the spin-lattice 
 	this.orderParameter        = 0;     // local order parameter
@@ -63,7 +63,7 @@ function Ising(settings){
 			this.spinBuffer.push([]);
 			
 			for(var j = 0; j < this.height; j++){
-				var s = (this.randomizeLattice)? 2*Math.floor(2*Math.random()) - 1) : 1;
+				var s = (this.randomizeLattice)? 2*Math.floor(2*Math.random()) - 1 : 1;
 				this.spin[i].push(s);
 				this.spinBuffer[i].push(0);
 			}
@@ -167,7 +167,7 @@ function Ising(settings){
 			var newRow = this.dataTable.addRow();
 			newRow.setString('temperature'    , this.temperature.toExponential(6)           ); 
 			newRow.setString('magnetic field' , this.magneticField.toExponential(6)         ); 
-			newRow.setString('magnetization'  , this.averageMagneticField.toExponential(6)  ); 
+			newRow.setString('magnetization'  , this.averageMagnetization.toExponential(6)  ); 
 			newRow.setString('order parameter', this.averageOrderParameter.toExponential(6) );
 			
 			console.log( '------ UPDATED DATATABLE ------'                  + '\n' +
